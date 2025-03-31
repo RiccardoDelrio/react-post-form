@@ -6,17 +6,21 @@ function App() {
     author: '',
     title: '',
     body: '',
-    isPublic: false,
+    public: false,
   })
-  console.log("log di posto vuoto" + post);
 
+  console.log("sarà pieno?", post);
 
   function handleClick(e) {
     e.preventDefault()
-    setPost({ ...post, [e.target.name]: e.target.value })
-    console.log("sarà pieno?" + post);
-
+    if (e.target.type === 'checkbox') {
+      setPost({ ...post, [e.target.name]: e.target.checked })
+    } else {
+      setPost({ ...post, [e.target.name]: e.target.value })
+    }
   }
+
+
 
   return (
     <>
@@ -38,12 +42,16 @@ function App() {
                 className="form-control mb-3"
                 placeholder="Title"
                 name="title"
+                value={post.title}
+                onChange={handleClick}
               />
               <textarea
                 className="form-control mb-3"
                 placeholder="Body"
                 rows="3"
                 name="body"
+                value={post.body}
+                onChange={handleClick}
               ></textarea>
               <div className="form-check mb-3">
                 <input
@@ -51,6 +59,8 @@ function App() {
                   className="form-check-input"
                   id="public"
                   name="public"
+                  checked={post.public}
+                  onChange={handleClick}
                 />
                 <label className="form-check-label" htmlFor="public">Public</label>
               </div>
