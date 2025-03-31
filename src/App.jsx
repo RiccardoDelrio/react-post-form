@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
 function App() {
-
   const [post, setPost] = useState({
     author: '',
     title: '',
@@ -9,39 +8,64 @@ function App() {
     public: false,
   })
 
+  const [alert, setAlert] = useState({
+    show: false,
+    type: '',
+    message: ''
+  })
+
   console.log("sarà pieno?", post);
 
   function handleClick(e) {
-
     if (e.target.type === 'checkbox') {
       setPost({ ...post, [e.target.name]: e.target.checked })
     } else {
       setPost({ ...post, [e.target.name]: e.target.value })
     }
-  } 6
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    fetch("https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts",
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(post),
+    setAlert({ show: true, type: 'info', message: 'Invio in corso...' })
+
+    fetch("https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(post),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
       })
-      .then(response => response.json())
       .then(data => {
-        console.log(data);
+        console.log('Success:', data);
+        setAlert({ show: true, type: 'success', message: 'Post creato con successo!' });
+        setPost({ author: '', title: '', body: '', public: false });
+        setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
       })
       .catch(error => {
         console.error('Error:', error);
-      }); "445"
+        setAlert({
+          show: true,
+          type: 'danger',
+          message: `Errore durante l'invio del post: ${error.message}`
+        });
+        setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
+      });
   }
-
 
   return (
     <>
       <div className="container mt-5">
+        {alert.show && (
+          <div className={`alert alert-${alert.type}`} role="alert">
+            {alert.message}
+          </div>
+        )}
         <div className="row justify-content-center">
           <div className="col-md-6">
             <form onSubmit={handleSubmit} className="form-group">
@@ -52,7 +76,6 @@ function App() {
                 name="author"
                 value={post.author}
                 onChange={handleClick}
-
               />
               <input
                 type="text"
