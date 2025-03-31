@@ -7,15 +7,14 @@ function App() {
     body: '',
     public: false,
   })
-
+  //gestire lo stato di errore
   const [alert, setAlert] = useState({
     show: false,
     type: '',
     message: ''
   })
 
-  console.log("sarà pieno?", post);
-
+  //funzione per assegnar i valori alle key (se è un checkbox  cambia da true a false)
   function handleClick(e) {
     if (e.target.type === 'checkbox') {
       setPost({ ...post, [e.target.name]: e.target.checked })
@@ -23,11 +22,12 @@ function App() {
       setPost({ ...post, [e.target.name]: e.target.value })
     }
   }
-
+  //funzione per la chiamata fetch
   const handleSubmit = (e) => {
     e.preventDefault()
+    //genera un messaggi di invio
     setAlert({ show: true, type: 'info', message: 'Invio in corso...' })
-
+    //parte la chiamta 
     fetch("https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts", {
       method: 'POST',
       headers: {
@@ -36,24 +36,30 @@ function App() {
       body: JSON.stringify(post),
     })
       .then(response => {
+        //se la risposta non è ok  restituisci questo stato
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
       .then(data => {
+        //se tutto va bene  mostri il risultato nella console e setta lo stato di alert
         console.log('Success:', data);
         setAlert({ show: true, type: 'success', message: 'Post creato con successo!' });
         setPost({ author: '', title: '', body: '', public: false });
+        //dopo 3 secondi rimetti l'allert in partenza
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
       })
       .catch(error => {
         console.error('Error:', error);
+        //in caso di errore, setto allerta e metto il messaggio
         setAlert({
           show: true,
           type: 'danger',
           message: `Errore durante l'invio del post: ${error.message}`
         });
+        //dopo 3 secondi rimetti l'allert in partenza
+
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
       });
   }
