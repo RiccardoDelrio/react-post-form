@@ -2,6 +2,22 @@ import { useState } from 'react'
 
 function App() {
 
+  const [post, setPost] = useState({
+    author: '',
+    title: '',
+    body: '',
+    isPublic: false,
+  })
+  console.log("log di posto vuoto" + post);
+
+
+  function handleClick(e) {
+    e.preventDefault()
+    setPost({ ...post, [e.target.name]: e.target.value })
+    console.log("sarà pieno?" + post);
+
+  }
+
   return (
     <>
       <div className="container mt-5">
@@ -13,6 +29,9 @@ function App() {
                 className="form-control mb-3"
                 placeholder="Author"
                 name="author"
+                value={post.author}
+                onChange={handleClick}
+
               />
               <input
                 type="text"
