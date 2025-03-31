@@ -12,14 +12,31 @@ function App() {
   console.log("sarà pieno?", post);
 
   function handleClick(e) {
-    e.preventDefault()
+
     if (e.target.type === 'checkbox') {
       setPost({ ...post, [e.target.name]: e.target.checked })
     } else {
       setPost({ ...post, [e.target.name]: e.target.value })
     }
+  } 6
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    fetch("https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts",
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(post),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      }); "445"
   }
-
 
 
   return (
@@ -27,7 +44,7 @@ function App() {
       <div className="container mt-5">
         <div className="row justify-content-center">
           <div className="col-md-6">
-            <form className="form-group">
+            <form onSubmit={handleSubmit} className="form-group">
               <input
                 type="text"
                 className="form-control mb-3"
