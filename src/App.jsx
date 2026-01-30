@@ -4,8 +4,9 @@ function App() {
   const [post, setPost] = useState({
     author: '',
     title: '',
-    body: '',
-    public: false,
+    content: '', // cambiato da 'body' a 'content' per matchare l'API
+    isPublished: false, // cambiato da 'public' a 'isPublished'
+    createdAt: new Date().toISOString() // aggiunto timestamp
   })
   //gestire lo stato di errore
   const [alert, setAlert] = useState({
@@ -13,40 +14,62 @@ function App() {
     type: '',
     message: ''
   })
+  console.log(post)
 
-  //funzione per assegnar i valori alle key (se è un checkbox  cambia da true a false)
+  //funzione per assegnare i valori alle key (se è un checkbox cambia da true a false)
   function handleClick(e) {
     if (e.target.type === 'checkbox') {
-      setPost({ ...post, [e.target.name]: e.target.checked })
+      setPost({ ...post, isPublished: e.target.checked }) // aggiornato nome campo
     } else {
-      setPost({ ...post, [e.target.name]: e.target.value })
+      // Converti 'body' in 'content' durante l'assegnazione
+      const fieldName = e.target.name === 'body' ? 'content' : e.target.name
+      setPost({ ...post, [fieldName]: e.target.value })
     }
   }
+
   //funzione per la chiamata fetch
   const handleSubmit = (e) => {
     e.preventDefault()
-    //genera un messaggi di invio
+
+    // Validazione base
+    if (!post.author || !post.title || !post.content) {
+      setAlert({
+        show: true,
+        type: 'danger',
+        message: 'Per favore compila tutti i campi'
+      })
+      return
+    }
+
+    //genera un messaggio di invio
     setAlert({ show: true, type: 'info', message: 'Invio in corso...' })
-    //parte la chiamta 
+
+    // Prepara i dati nel formato corretto
+    const postData = {
+      ...post,
+      createdAt: new Date().toISOString()
+    }
+
+    //parte la chiamata 
     fetch("https://67c5b4f3351c081993fb1ab6.mockapi.io/api/posts", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(post),
+      body: JSON.stringify(postData),
     })
       .then(response => {
-        //se la risposta non è ok  restituisci questo stato
+        //se la risposta non è ok restituisci questo stato
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
       .then(data => {
-        //se tutto va bene  mostri il risultato nella console e setta lo stato di alert
+        //se tutto va bene mostri il risultato nella console e setta lo stato di alert
         console.log('Success:', data);
         setAlert({ show: true, type: 'success', message: 'Post creato con successo!' });
-        setPost({ author: '', title: '', body: '', public: false });
+        setPost({ author: '', title: '', content: '', isPublished: false, createdAt: new Date().toISOString() });
         //dopo 3 secondi rimetti l'allert in partenza
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
       })
@@ -59,7 +82,6 @@ function App() {
           message: `Errore durante l'invio del post: ${error.message}`
         });
         //dopo 3 secondi rimetti l'allert in partenza
-
         setTimeout(() => setAlert({ show: false, type: '', message: '' }), 3000);
       });
   }
@@ -93,10 +115,10 @@ function App() {
               />
               <textarea
                 className="form-control mb-3"
-                placeholder="Body"
+                placeholder="Content" // cambiato da Body a Content
                 rows="3"
                 name="body"
-                value={post.body}
+                value={post.content} // aggiornato per usare content
                 onChange={handleClick}
               ></textarea>
               <div className="form-check mb-3">
@@ -104,8 +126,8 @@ function App() {
                   type="checkbox"
                   className="form-check-input"
                   id="public"
-                  name="public"
-                  checked={post.public}
+                  name="isPublished" // aggiornato nome campo
+                  checked={post.isPublished}
                   onChange={handleClick}
                 />
                 <label className="form-check-label" htmlFor="public">Public</label>
